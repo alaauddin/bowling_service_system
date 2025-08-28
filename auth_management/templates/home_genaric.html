@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center g-4">
+    <div class="col-md-6 col-lg-5">
+        <div class="card text-center p-4 wow h-100" style="border-radius: 1rem;">
+            <div class="mb-3">
+                <i class="bi bi-person-badge" style="font-size: 3rem; color: #007bff;"></i>
+            </div>
+            <h3 class="mb-2">المشغل</h3>
+            <p class="mb-3 text-muted">لوحة تحكم المشغل لإدارة المهام اليومية وتسجيل الأعطال.</p>
+            <a href="{% url 'home' %}" class="btn btn-primary btn-lg shadow-sm">
+                الذهاب إلى لوحة المشغل <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-5">
+        <div class="card text-center p-4 wow h-100" style="border-radius: 1rem;">
+            <div class="mb-3">
+                <i class="bi bi-tools" style="font-size: 3rem; color: #00c6ff;"></i>
+            </div>
+            <h3 class="mb-2">الفني</h3>
+            <p class="mb-3 text-muted">لوحة تحكم الفني لمتابعة وإصلاح الأعطال وتحديث حالة الصيانة.</p>
+            <a href="{% url 'dashboard' %}" class="btn btn-info btn-lg shadow-sm text-white">
+                الذهاب إلى لوحة الفني <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</div>
+<div class="text-center mt-5">
+    <span class="fw-bold text-secondary">اختر نوع الدخول للمتابعة</span>
+</div>
+{% endblock %}

@@ -14,7 +14,7 @@
         {{ form.notes }}
     </div>
     <button type="submit" class="btn btn-success">إضافة سجل خطأ</button>
-    <a href="{% url 'lane_detail' lane.id %}" class="btn btn-secondary ms-2">إلغاء</a>
+    <a href="{% url 'section_detail' lane.section.id %}" class="btn btn-secondary ms-2">إلغاء</a>
 </form>
 <script>
 function filterErrors() {

@@ -5,6 +5,7 @@ from django.utils import timezone
 
 from app1.models import *
 
+from auth_management.permission import admin_role, maintenance_role
 
 # Create your views here.
 
@@ -13,12 +14,16 @@ from app1.models import *
 
 @login_required
 def dashboard(request):
+    if not maintenance_role(request):
+        return redirect('home_genaric')
     sections = Section.objects.all()
     context = {'sections': sections}
     return render(request, 'dashboard.html', context)
 
 @login_required
 def section_overview(request, section_id):
+    if not maintenance_role(request):
+        return redirect('home_genaric')
     section = Section.objects.get(id=section_id)
     lanes = Lane.objects.filter(section=section)
     note = NotePending.objects.filter(lane__in=lanes, is_resolved=False)
@@ -27,6 +32,8 @@ def section_overview(request, section_id):
 
 @login_required
 def lane_errors(request, lane_id):
+    if not maintenance_role(request):
+        return redirect('home_genaric')
     lane = Lane.objects.get(id=lane_id)
     error_logs = lane.errorlog_set.filter(is_resolved=False)
     if request.method == 'POST':
@@ -55,23 +62,13 @@ def lane_errors(request, lane_id):
             })
     return render(request, 'lane_errors.html', {'lane': lane, 'error_logs': error_logs})
 
-class RepairLogFilterForm(forms.Form):
-    lane = forms.ModelChoiceField(queryset=Lane.objects.all(), required=False, label='Lane')
-    date_from = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}), label='Date From')
-    date_to = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}), label='Date To')
-    
-    class Meta:
-        model = RepairLog
-        fields = ['lane', 'date_from', 'date_to']
-        widgets = {
-            'lane': forms.Select(attrs={'class': 'form-control'}),
-            'date_from': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'date_to': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-        }
-    
+
 
 @login_required
 def my_repairs(request):
+    from .forms import RepairLogFilterForm
+    if not maintenance_role(request):
+        return redirect('home_genaric')
     form = RepairLogFilterForm(request.GET or None)
     repair_logs = RepairLog.objects.filter(repaired_by=request.user).order_by('-created_at')
     if form.is_valid():
@@ -88,6 +85,8 @@ def my_repairs(request):
 
 @login_required
 def edit_note_pending_app2(request, note_id):
+    if not maintenance_role(request):
+        return redirect('home_genaric')
     note_pending = get_object_or_404(NotePending, id=note_id)
     if request.method == 'POST':
         resolving_report = request.POST.get('resolving_report', '').strip()
@@ -106,14 +105,12 @@ def edit_note_pending_app2(request, note_id):
             return render(request, 'edit_note_pending_app2.html', {'note_pending': note_pending, 'error': error})
     return render(request, 'edit_note_pending_app2.html', {'note_pending': note_pending})
 
-class NotePendingFilterForm(forms.Form):
-    lane = forms.ModelChoiceField(queryset=Lane.objects.all(), required=False, label='Lane')
-    is_resolved = forms.ChoiceField(choices=[('', 'All'), ('True', 'Resolved'), ('False', 'Unresolved')], required=False, label='Status')
-    date_from = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}), label='Date From')
-    date_to = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}), label='Date To')
 
 @login_required
 def broken_lane_resolves(request):
+    from .forms import NotePendingFilterForm
+    if not maintenance_role(request):
+        return redirect('home_genaric')
     form = NotePendingFilterForm(request.GET or None)
     notes = NotePending.objects.all().order_by('-created_at')
     if form.is_valid():
@@ -133,15 +130,12 @@ def broken_lane_resolves(request):
             notes = notes.filter(created_at__date__lte=date_to)
     return render(request, 'broken_lane_resolves.html', {'notes': notes, 'form': form})
 
-class ErrorLogFilterForm(forms.Form):
-    lane = forms.ModelChoiceField(queryset=Lane.objects.all(), required=False, label='Lane')
-    error = forms.ModelChoiceField(queryset=Error.objects.all(), required=False, label='Error Type')
-    is_resolved = forms.ChoiceField(choices=[('', 'All'), ('True', 'Resolved'), ('False', 'Unresolved')], required=False, label='Status')
-    date_from = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}), label='Date From')
-    date_to = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}), label='Date To')
 
 @login_required
 def all_error_logs(request):
+    from .forms import ErrorLogFilterForm
+    if not maintenance_role(request):
+        return redirect('home_genaric')
     form = ErrorLogFilterForm(request.GET or None)
     error_logs = ErrorLog.objects.all().order_by('-created_at')
     if form.is_valid():
@@ -166,20 +160,18 @@ def all_error_logs(request):
 
 @login_required
 def all_errors(request):
+    if not admin_role(request):
+        return redirect('home_genaric')
     errors = Error.objects.all().order_by('number')
     return render(request, 'all_errors.html', {'errors': errors})
 
-class ErrorForm(forms.ModelForm):
-    class Meta:
-        model = Error
-        fields = ['number', 'description']
-        widgets = {
-            'number': forms.TextInput(attrs={'class': 'form-control'}),
-            'description': forms.TextInput(attrs={'class': 'form-control'}),
-        }
+
 
 @login_required
 def add_error(request):
+    from .forms import ErrorForm
+    if not admin_role(request):
+        return redirect('home_genaric')
     if request.method == 'POST':
         form = ErrorForm(request.POST)
         if form.is_valid():
@@ -191,12 +183,16 @@ def add_error(request):
 
 @login_required
 def edit_error(request, error_id):
-    error = get_object_or_404(Error, id=error_id)
-    if request.method == 'POST':
-        form = ErrorForm(request.POST, instance=error)
-        if form.is_valid():
-            form.save()
-            return redirect('all_errors')
+    from .forms import ErrorForm
+    if not admin_role(request):
+        return redirect('home_genaric')
     else:
-        form = ErrorForm(instance=error)
-    return render(request, 'edit_error.html', {'form': form, 'error': error})
+        error = get_object_or_404(Error, id=error_id)
+        if request.method == 'POST':
+            form = ErrorForm(request.POST, instance=error)
+            if form.is_valid():
+                form.save()
+                return redirect('all_errors')
+        else:
+            form = ErrorForm(instance=error)
+        return render(request, 'edit_error.html', {'form': form, 'error': error})

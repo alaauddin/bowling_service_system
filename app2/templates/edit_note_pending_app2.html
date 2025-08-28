@@ -15,6 +15,6 @@
     <div class="alert alert-danger">{{ error }}</div>
     {% endif %}
     <button type="submit" class="btn btn-success">Save Changes</button>
-    <a href="{% url 'broken_lane_resolves' %}" class="btn btn-secondary ms-2">Cancel</a>
+    <a href="{% url 'section_overview' note_pending.lane.section.id %}" class="btn btn-secondary ms-2">Cancel</a>
 </form>
 {% endblock %}

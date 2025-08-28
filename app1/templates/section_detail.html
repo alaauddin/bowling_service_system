@@ -1,57 +1,170 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="wow">مسارات القسم</h2>
-    {% if section_today_checklist %}
-        <a href="{% url 'edit_daily_checklist' section_today_checklist.id %}" class="btn btn-primary">تعديل قائمة الفحص اليومي</a>
-    {% else %}
-        <a href="{% url 'add_daily_checklist' lane.0.section.id %}" class="btn btn-success">إضافة قائمة الفحص اليومي</a>
-    {% endif %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3">
+    <h2 class="welcome-text h3 fw-bold mb-2 mb-md-0 fade-in-title">
+        <i class="bi bi-diagram-3-fill me-1 text-accent"></i>
+        مسارات القسم
+    </h2>
+    <div>
+        {% if section_today_checklist %}
+            <a href="{% url 'edit_daily_checklist' section_today_checklist.id %}" 
+               class="btn btn-gradient btn-sm shadow-sm">
+                <i class="bi bi-pencil-square me-1"></i> تعديل الفحص اليومي
+            </a>
+        {% else %}
+            <a href="{% url 'add_daily_checklist' lane.0.section.id %}" 
+            class="btn btn-glow btn-sm shadow-sm">
+                <i class="bi bi-plus-circle me-1"></i> إضافة الفحص اليومي
+            </a>
+        {% endif %}
+    </div>
 </div>
+
 {% if section_today_checklist %}
-<div class="card mb-4">
-    <div class="card-body">
-        <h5 class="card-title">قائمة الفحص اليومي</h5>
-        <ul class="list-group list-group-flush">
-            <li class="list-group-item">فحص كهربائي: <strong>{{ section_today_checklist.electrical_check|yesno:"نعم,لا" }}</strong></li>
-            <li class="list-group-item">تم التنظيف: <strong>{{ section_today_checklist.is_cleaned|yesno:"نعم,لا" }}</strong></li>
-            <li class="list-group-item">تم التشغيل بسلاسة: <strong>{{ section_today_checklist.oprated_smoothly|yesno:"نعم,لا" }}</strong></li>
-            <li class="list-group-item">لا توجد أعطال: <strong>{{ section_today_checklist.no_defects|yesno:"نعم,لا" }}</strong></li>
-            <li class="list-group-item">ملاحظات: {{ section_today_checklist.notes|default:"لا توجد ملاحظات" }}</li>
+<div class="card mb-3 shadow-sm glass-card">
+    <div class="card-header text-center gradient-header text-white fw-bold py-2 small">
+        <i class="bi bi-clipboard-check me-1"></i> قائمة الفحص اليومي
+    </div>
+    <div class="card-body p-2">
+        <ul class="list-group list-group-flush small">
+            <li class="list-group-item py-1"><i class="bi bi-lightning-charge text-warning me-1"></i> كهربائي: <strong class="text-success">{{ section_today_checklist.electrical_check|yesno:"نعم,لا" }}</strong></li>
+            <li class="list-group-item py-1"><i class="bi bi-brush text-primary me-1"></i> تنظيف: <strong class="text-success">{{ section_today_checklist.is_cleaned|yesno:"نعم,لا" }}</strong></li>
+            <li class="list-group-item py-1"><i class="bi bi-gear-fill text-info me-1"></i> تشغيل سلس: <strong class="text-success">{{ section_today_checklist.oprated_smoothly|yesno:"نعم,لا" }}</strong></li>
+            <li class="list-group-item py-1"><i class="bi bi-shield-check text-success me-1"></i> أعطال: <strong class="text-success">{{ section_today_checklist.no_defects|yesno:"نعم,لا" }}</strong></li>
+            <li class="list-group-item py-1"><i class="bi bi-chat-dots text-secondary me-1"></i> ملاحظات: <span class="text-info">{{ section_today_checklist.notes|default:"لا توجد" }}</span></li>
         </ul>
-        <span class="badge bg-info mt-2">تم الإرسال بواسطة: {{ section_today_checklist.created_by.username }}</span>
+        <span class="badge rounded-pill bg-gradient small mt-2">بواسطة: {{ section_today_checklist.created_by.username }}</span>
     </div>
 </div>
 {% endif %}
-<div class="row">
+
+<div class="row g-2 justify-content-center">
     {% for lane in lane %}
-    <div class="col-md-4 mb-3">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">مسار {{ lane.number }}</h5>
-                <p class="card-text">القسم: {{ lane.section.name }}</p>
+    <div class="col-lg-3 col-md-4 col-6">
+        <div class="card lane-card shadow-sm h-100">
+            <div class="card-header lane-header">
+                <!-- Lane Number -->
+<span class="lane-number display-1 fw-bold">{{ lane.number }}</span>
+
+                <!-- Pending Note (top-right corner) -->
                 {% if lane.get_none_resolved_notes %}
-                    <div class="mb-2">
-                        <strong>ملاحظات معلقة:</strong>
-                        <ul class="list-group list-group-flush">
-                        {% for note in lane.get_none_resolved_notes %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                {{ note.note }}
-                                <a href="{% url 'edit_note_pending' note.id %}" class="btn btn-sm btn-outline-secondary">تعديل</a>
-                            </li>
-                        {% endfor %}
-                        </ul>
+                    <a href="{% url 'edit_note_pending' lane.get_none_resolved_notes.0.id %}" 
+                       class="note-indicator" title="ملاحظات غير محلولة">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </a>
+                {% endif %}
+
+                <!-- Error Count (below number) -->
+                {% if lane.get_error_logs_count > 0 %}
+                    <div class="error-badge">
+                        <span class="badge bg-danger small">أخطاء: {{ lane.get_error_logs_count }}</span>
                     </div>
                 {% endif %}
-                <a href="{% url 'lane_detail' lane.id %}" class="btn btn-primary">View Lane Details</a>
-                <a href="{% url 'add_errorlog' lane.id %}" class="btn btn-warning ms-2">Add Error Log</a>
-                <a href="{% url 'add_note_pending' lane.id %}" class="btn btn-info ms-2">Add Note</a>
-                
             </div>
+
+            <div class="card-body p-2 d-flex flex-column justify-content-end">
+                <div class="d-flex flex-wrap justify-content-center gap-1">
+                    <a href="{% url 'lane_detail' lane.id %}" 
+                    class="btn btn-action btn-sm btn-primary d-flex align-items-center gap-1" 
+                    title="تفاصيل">
+                        <i class="bi bi-eye-fill"></i> <span>تفاصيل</span>
+                    </a>
+                    <a href="{% url 'add_errorlog' lane.id %}" 
+                    class="btn btn-action btn-sm btn-warning d-flex align-items-center gap-1" 
+                    title="إضافة خطأ">
+                        <i class="bi bi-bug"></i> <span>خطأ</span>
+                    </a>
+                    <a href="{% url 'add_note_pending' lane.id %}" 
+                    class="btn btn-action btn-sm btn-info d-flex align-items-center gap-1" 
+                    title="إضافة ملاحظة">
+                        <i class="bi bi-journal-plus"></i> <span>ملاحظة</span>
+                    </a>
+                </div>
+            </div>
+
         </div>
     </div>
     {% empty %}
-    <p>No lanes found in this section.</p>
+    <div class="col-12 text-center">
+        <p class="alert alert-info small mt-3">لا توجد مسارات في هذا القسم.</p>
+    </div>
     {% endfor %}
 </div>
+
+<style>
+/* 🔹 Lane Card */
+.lane-card { transition: all 0.3s ease; border-radius: 0.75rem; }
+.lane-card:hover { transform: translateY(-5px) scale(1.02); }
+.lane-header {
+    height: 90px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    text-align: center; position: relative;
+}
+.lane-number {
+    color: #fff; text-shadow: 0 0 6px rgba(255,255,255,0.6);
+    position: absolute; left: 50%; top: 35%;
+    transform: translateX(-50%);
+}
+
+/* 🔹 Pending Note (top-right corner) */
+.note-indicator {
+    position: absolute; top: 6px; right: 8px;
+    font-size: 3rem; color: #dc3545;
+    animation: glow 1.6s infinite;
+}
+@keyframes glow { 0% { text-shadow: 0 0 0 #dc3545;} 50% { text-shadow: 0 0 8px #dc3545;} 100% { text-shadow: 0 0 0 #dc3545;} }
+
+/* 🔹 Error Badge (below number) */
+.error-badge {
+    position: absolute; top: 4px; ;
+    transform: translateX(-50%);
+}
+.error-badge .badge { font-size: 0.7rem; padding: 0.2rem 0.5rem; }
+
+/* 🔹 Buttons */
+.btn-action { border-radius: 20px; padding: 0.25rem 0.6rem; }
+
+/* Bigger lane number */
+
+
+/* Glowing animated button */
+.btn-glow {
+    margin-top: 15px;
+  background: linear-gradient(90deg, #68afffff, #ffcd57ff, #5cabffff);
+  background-size: 300% 100%;
+  color: #fff !important;
+  border: none;
+  border-radius: 12px;
+  font-weight: bold;
+  animation: glowing 6s linear infinite, pulse 1.5s ease-in-out infinite, bounceScale 1.8s cubic-bezier(.68,-0.55,.27,1.55) infinite;
+  box-shadow: 0 0 12px 2px #68afff88, 0 0 24px 4px #ffcd5788;
+  transition: transform 0.2s ease-in-out, box-shadow 0.3s;
+}
+
+.btn-glow:hover {
+  transform: scale(1.18) rotate(-2deg);
+  box-shadow: 0 0 24px 6px #ffcd57cc, 0 0 32px 8px #5cabffcc;
+}
+
+@keyframes glowing {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 12px 2px #68afff88, 0 0 24px 4px #ffcd5788; }
+  50% { box-shadow: 0 0 32px 8px #ffcd57cc, 0 0 40px 12px #5cabffcc; }
+  100% { box-shadow: 0 0 12px 2px #68afff88, 0 0 24px 4px #ffcd5788; }
+}
+
+@keyframes bounceScale {
+  0%   { transform: scale(1); }
+  20%  { transform: scale(1.12); }
+  40%  { transform: scale(0.92); }
+  60%  { transform: scale(1.08); }
+  80%  { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
+</style>
 {% endblock %}

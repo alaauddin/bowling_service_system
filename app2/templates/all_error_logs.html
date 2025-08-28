@@ -1,52 +1,83 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2 class="wow">All Error Logs</h2>
-<form method="get" class="row g-3 mb-4 p-3 bg-light rounded shadow-sm">
-    <div class="col-md-3">
-        <label class="form-label fw-bold">Lane</label>
-        {{ form.lane }}
+<div dir="rtl">
+<h2 class="wow mb-4"><i class="bi bi-bug me-1"></i> جميع سجلات الأخطاء</h2>
+<form method="get" class="row g-3 p-3 bg-white rounded-3 shadow-sm align-items-end mb-4" style="max-width: 1100px;">
+    <div class="col-12 col-md-3">
+        <label class="form-label fw-bold mb-2">المسار <i class="bi bi-diagram-3 ms-1"></i></label>
+        <div class="input-group input-group-lg flex-row-reverse">
+            {{ form.lane }}
+            <span class="input-group-text bg-light"><i class="bi bi-diagram-3"></i></span>
+        </div>
     </div>
-    <div class="col-md-3">
-        <label class="form-label fw-bold">Error Type</label>
-        {{ form.error }}
+    <div class="col-12 col-md-3">
+        <label class="form-label fw-bold mb-2">نوع الخطأ <i class="bi bi-bug ms-1"></i></label>
+        <div class="input-group input-group-lg flex-row-reverse">
+            {{ form.error }}
+            <span class="input-group-text bg-light"><i class="bi bi-bug"></i></span>
+        </div>
     </div>
-    <div class="col-md-2">
-        <label class="form-label fw-bold">Status</label>
-        {{ form.is_resolved }}
+    <div class="col-6 col-md-2">
+        <label class="form-label fw-bold mb-2">الحالة <i class="bi bi-info-circle ms-1"></i></label>
+        <div class="input-group input-group-lg flex-row-reverse">
+            {{ form.is_resolved }}
+            <span class="input-group-text bg-light"><i class="bi bi-info-circle"></i></span>
+        </div>
     </div>
-    <div class="col-md-2">
-        <label class="form-label fw-bold">Date From</label>
-        {{ form.date_from }}
+    <div class="col-6 col-md-2">
+        <label class="form-label fw-bold mb-2">من تاريخ <i class="bi bi-calendar-date ms-1"></i></label>
+        <div class="input-group input-group-lg flex-row-reverse">
+            {{ form.date_from }}
+            <span class="input-group-text bg-light"><i class="bi bi-calendar-date"></i></span>
+        </div>
     </div>
-    <div class="col-md-2">
-        <label class="form-label fw-bold">Date To</label>
-        {{ form.date_to }}
+    <div class="col-6 col-md-2">
+        <label class="form-label fw-bold mb-2">إلى تاريخ <i class="bi bi-calendar-date ms-1"></i></label>
+        <div class="input-group input-group-lg flex-row-reverse">
+            {{ form.date_to }}
+            <span class="input-group-text bg-light"><i class="bi bi-calendar-date"></i></span>
+        </div>
     </div>
-    <div class="col-md-2 d-flex align-items-end">
-        <button type="submit" class="btn btn-primary w-100">Filter</button>
+    <div class="col-12 col-md-2 d-grid">
+        <button type="submit" class="btn btn-primary fw-bold py-2"><i class="bi bi-funnel"></i> تصفية</button>
     </div>
 </form>
 {% if error_logs %}
-    <div class="row">
-        {% for log in error_logs %}
-        <div class="col-md-6 mb-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Lane {{ log.lane.number }} (Section: {{ log.lane.section.name }})</h5>
-                    <p class="card-text">Error: {{ log.error.number }} - {{ log.error.description }}</p>
-                    <p class="card-text">Status: <span class="badge {% if log.is_resolved %}bg-success{% else %}bg-warning{% endif %}">{{ log.is_resolved|yesno:"Resolved,Unresolved" }}</span></p>
-                    <p class="card-text">Notes: {{ log.notes|default:"No notes" }}</p>
-                    <p class="card-text">Created By: {{ log.created_by.username }}</p>
-                    {% if log.is_resolved %}
-                        <p class="card-text">Resolved By: {{ log.resolved_by.username }}</p>
-                    {% endif %}
-                    <p class="card-text"><small class="text-muted">Created: {{ log.created_at }}</small></p>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle bg-white shadow-sm">
+            <thead class="table-primary">
+                <tr>
+                    <th scope="col"><i class="bi bi-diagram-3"></i> المسار</th>
+                    <th scope="col"><i class="bi bi-diagram-3"></i> القسم</th>
+                    <th scope="col"><i class="bi bi-bug"></i> نوع الخطأ</th>
+                    <th scope="col"><i class="bi bi-pencil-square"></i> الوصف</th>
+                    <th scope="col"><i class="bi bi-calendar-date"></i> التاريخ</th>
+                    <th scope="col"><i class="bi bi-info-circle"></i> الحالة</th>
+                    <th scope="col"><i class="bi bi-person-circle"></i> أنشئ بواسطة</th>
+                    <th scope="col"><i class="bi bi-person-check"></i> تم الحل بواسطة</th>
+                    <th scope="col"><i class="bi bi-chat-dots"></i> ملاحظات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in error_logs %}
+                <tr>
+                    <td>{{ log.lane.number }}</td>
+                    <td>{{ log.lane.section.name }}</td>
+                    <td>{{ log.error.number }} - {{ log.error.description }}</td>
+                    <td>{{ log.description|default:"-" }}</td>
+                    <td>{{ log.created_at }}</td>
+                    <td>
+                        <span class="badge {% if log.is_resolved %}bg-success{% else %}bg-warning{% endif %}">{{ log.is_resolved|yesno:"محلول,غير محلول" }}</span>
+                    </td>
+                    <td>{{ log.created_by.username|default:"-" }}</td>
+                    <td>{% if log.is_resolved %}{{ log.resolved_by.username|default:"-" }}{% else %}-{% endif %}</td>
+                    <td>{{ log.notes|default:"لا توجد ملاحظات" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 {% else %}
-    <p>No error logs found.</p>
+    <div class="alert alert-info mt-4 text-center"><i class="bi bi-info-circle me-1"></i> لم يتم العثور على سجلات أخطاء.</div>
 {% endif %}
 {% endblock %}

@@ -1,48 +1,72 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2 class="wow">Broken Lane Resolves</h2>
-<form method="get" class="row g-3 mb-4 p-3 bg-light rounded shadow-sm">
-    <div class="col-md-3">
-        <label class="form-label fw-bold">Lane</label>
-        {{ form.lane }}
+<div dir="rtl">
+<h2 class="wow mb-4"><i class="bi bi-exclamation-triangle me-1"></i> حل ملاحظات المسارات المعطلة</h2>
+<form method="get" class="row g-3 p-3 bg-white rounded-3 shadow-sm align-items-end mb-4" >
+    <div class="col-12 col-md-6 col-lg-4">
+        <label class="form-label fw-bold mb-2">المسار <i class="bi bi-diagram-3 ms-1"></i></label>
+        <div class="input-group input-group-lg flex-row-reverse w-100">
+            {{ form.lane }}
+            <span class="input-group-text bg-light"><i class="bi bi-diagram-3"></i></span>
+        </div>
     </div>
-    <div class="col-md-2">
-        <label class="form-label fw-bold">Status</label>
-        {{ form.is_resolved }}
+    <div class="col-6 col-md-6 col-lg-4">
+        <label class="form-label fw-bold mb-2">الحالة <i class="bi bi-info-circle ms-1"></i></label>
+        <div class="input-group input-group-lg flex-row-reverse w-100">
+            {{ form.is_resolved }}
+            <span class="input-group-text bg-light"><i class="bi bi-info-circle"></i></span>
+        </div>
     </div>
-    <div class="col-md-2">
-        <label class="form-label fw-bold">Date From</label>
-        {{ form.date_from }}
+    <div class="col-6 col-md-6 col-lg-4">
+        <label class="form-label fw-bold mb-2">من تاريخ <i class="bi bi-calendar-date ms-1"></i></label>
+        <div class="input-group input-group-lg flex-row-reverse w-100">
+            {{ form.date_from }}
+            <span class="input-group-text bg-light"><i class="bi bi-calendar-date"></i></span>
+        </div>
     </div>
-    <div class="col-md-2">
-        <label class="form-label fw-bold">Date To</label>
-        {{ form.date_to }}
+    <div class="col-6 col-md-6 col-lg-4">
+        <label class="form-label fw-bold mb-2">إلى تاريخ <i class="bi bi-calendar-date ms-1"></i></label>
+        <div class="input-group input-group-lg flex-row-reverse w-100">
+            {{ form.date_to }}
+            <span class="input-group-text bg-light"><i class="bi bi-calendar-date"></i></span>
+        </div>
     </div>
-    <div class="col-md-3 d-flex align-items-end">
-        <button type="submit" class="btn btn-primary w-100">Filter</button>
+    <div class="col-12 col-md-6 col-lg-4 d-grid">
+        <button type="submit" class="btn btn-primary fw-bold py-2"><i class="bi bi-funnel"></i> تصفية</button>
     </div>
 </form>
 {% if notes %}
-    <div class="row">
-        {% for note in notes %}
-        <div class="col-md-6 mb-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Lane {{ note.lane.number }} (Section: {{ note.lane.section.name }})</h5>
-                    <p class="card-text">Note: {{ note.note }}</p>
-                    <p class="card-text">Status: <span class="badge {% if note.is_resolved %}bg-success{% else %}bg-warning{% endif %}">{{ note.is_resolved|yesno:"Resolved,Unresolved" }}</span></p>
-                    {% if note.is_resolved %}
-                        <p class="card-text">Resolved By: {{ note.resolved_by.username }}</p>
-                        <p class="card-text">Resolving Report: {{ note.resolving_report }}</p>
-                        <a href="{% url 'edit_note_pending_app2' note.id %}" class="btn btn-sm btn-outline-primary">Edit Report</a>
-                    {% endif %}
-                    <p class="card-text"><small class="text-muted">Created: {{ note.created_at }}</small></p>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle bg-white shadow-sm">
+            <thead class="table-primary">
+                <tr>
+                    <th scope="col"><i class="bi bi-diagram-3"></i> المسار</th>
+                    <th scope="col"><i class="bi bi-diagram-3"></i> القسم</th>
+                    <th scope="col"><i class="bi bi-chat-dots"></i> الملاحظة</th>
+                    <th scope="col"><i class="bi bi-info-circle"></i> الحالة</th>
+                    <th scope="col"><i class="bi bi-person-check"></i> تم الحل بواسطة</th>
+                    <th scope="col"><i class="bi bi-file-earmark-text"></i> تقرير الحل</th>
+                    <th scope="col"><i class="bi bi-pencil-square"></i> تعديل التقرير</th>
+                    <th scope="col"><i class="bi bi-calendar-date"></i> تاريخ الإنشاء</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for note in notes %}
+                <tr>
+                    <td>{{ note.lane.number }}</td>
+                    <td>{{ note.lane.section.name }}</td>
+                    <td>{{ note.note }}</td>
+                    <td><span class="badge {% if note.is_resolved %}bg-success{% else %}bg-warning{% endif %}">{{ note.is_resolved|yesno:"محلولة,غير محلولة" }}</span></td>
+                    <td>{% if note.is_resolved %}{{ note.resolved_by.username|default:"-" }}{% else %}-{% endif %}</td>
+                    <td>{% if note.is_resolved %}{{ note.resolving_report|default:"-" }}{% else %}-{% endif %}</td>
+                    <td>{% if note.is_resolved %}<a href="{% url 'edit_note_pending_app2' note.id %}" class="btn btn-sm btn-outline-primary">تعديل التقرير</a>{% else %}-{% endif %}</td>
+                    <td>{{ note.created_at }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 {% else %}
-    <p>No notes found.</p>
+    <div class="alert alert-info mt-4 text-center"><i class="bi bi-info-circle me-1"></i> لم يتم العثور على ملاحظات.</div>
 {% endif %}
 {% endblock %}
