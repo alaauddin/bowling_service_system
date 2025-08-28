@@ -1,53 +1,112 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2 class="wow">My Repairs</h2>
-<form method="get" class="row g-3 mb-4 p-3 bg-light rounded shadow-sm">
-    <div class="col-md-4">
-        <label class="form-label fw-bold">Lane</label>
-        <div class="input-group">
-            <span class="input-group-text"><i class="bi bi-diagram-3"></i></span>
-            {{ form.lane }}
-        </div>
-    </div>
-    <div class="col-md-3">
-        <label class="form-label fw-bold">Date From</label>
-        <div class="input-group">
-            <span class="input-group-text"><i class="bi bi-calendar-date"></i></span>
-            {{ form.date_from }}
-        </div>
-    </div>
-    <div class="col-md-3">
-        <label class="form-label fw-bold">Date To</label>
-        <div class="input-group">
-            <span class="input-group-text"><i class="bi bi-calendar-date"></i></span>
-            {{ form.date_to }}
-        </div>
-    </div>
-    <div class="col-md-2 d-flex align-items-end">
-        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel"></i> Filter</button>
-    </div>
-</form>
-{% if repair_logs %}
-    <div class="row">
-        {% for log in repair_logs %}
-        <div class="col-md-6 mb-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Lane {{ log.lane.number }} (Section: {{ log.lane.section.name }})</h5>
-                    <p class="card-text">Date: {{ log.date }}</p>
-                    <p class="card-text">Description: {{ log.description }}</p>
-                    <strong>Errors Repaired:</strong>
-                    <ul>
-                        {% for errorlog in log.error.all %}
-                        <li>{{ errorlog.error.number }} - {{ errorlog.error.description }}</li>
-                        {% endfor %}
-                    </ul>
+<div class="container-fluid px-0" dir="rtl">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-2">
+        <h2 class="wow mb-0"><i class="bi bi-tools me-1"></i> إصلاحاتي</h2>
+        <form method="get" class="row g-3 p-3 bg-white rounded-3 shadow-sm align-items-end w-100 w-md-auto" style="max-width: 900px;">
+            <div class="col-12 col-md-4">
+                <label class="form-label fw-bold mb-2">المسار <i class="bi bi-diagram-3 ms-1"></i></label>
+                <div class="input-group input-group-lg flex-row-reverse">
+                    {{ form.lane }}
+                    <span class="input-group-text bg-light"><i class="bi bi-diagram-3"></i></span>
                 </div>
             </div>
-        </div>
-        {% endfor %}
+            <div class="col-6 col-md-3">
+                <label class="form-label fw-bold mb-2">من تاريخ <i class="bi bi-calendar-date ms-1"></i></label>
+                <div class="input-group input-group-lg flex-row-reverse">
+                    {{ form.date_from }}
+                    <span class="input-group-text bg-light"><i class="bi bi-calendar-date"></i></span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <label class="form-label fw-bold mb-2">إلى تاريخ <i class="bi bi-calendar-date ms-1"></i></label>
+                <div class="input-group input-group-lg flex-row-reverse">
+                    {{ form.date_to }}
+                    <span class="input-group-text bg-light"><i class="bi bi-calendar-date"></i></span>
+                </div>
+            </div>
+            <div class="col-12 col-md-2 d-grid">
+                <button type="submit" class="btn btn-primary fw-bold py-2"><i class="bi bi-funnel"></i> تصفية</button>
+            </div>
+        </form>
     </div>
+
+    {% if repair_logs %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle bg-white shadow-sm">
+            <thead class="table-primary">
+                <tr>
+                    <th scope="col"><i class="bi bi-diagram-3"></i> المسار</th>
+                    <th scope="col"><i class="bi bi-diagram-3"></i> القسم</th>
+                    <th scope="col"><i class="bi bi-calendar-date"></i> التاريخ</th>
+                    <th scope="col"><i class="bi bi-pencil-square"></i> الوصف</th>
+                    <th scope="col"><i class="bi bi-bug"></i> الأخطاء التي تم إصلاحها</th>
+                    <th scope="col"><i class="bi bi-person-circle"></i> تم بواسطة</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in repair_logs %}
+                <tr>
+                    <td>{{ log.lane.number }}</td>
+                    <td>{{ log.lane.section.name }}</td>
+                    <td>{{ log.date }}</td>
+                    <td>{{ log.description }}</td>
+                    <td>
+                        <ul class="mb-0 ps-3">
+                            {% for errorlog in log.error.all %}
+                            <li>{{ errorlog.error.number }} - {{ errorlog.error.description }}</li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                    <td>{{ log.repaired_by.username|default:"-" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info mt-4 text-center"><i class="bi bi-info-circle me-1"></i> لم يتم العثور على أي إصلاحات.</div>
+    {% endif %}
+</div>
+{% if repair_logs %}
+    
 {% else %}
-    <p>No repairs found.</p>
+    <div class="alert alert-info mt-4"><i class="bi bi-info-circle me-1"></i> لم يتم العثور على أي إصلاحات.</div>
 {% endif %}
+<style>
+.wow {
+    font-size: 2rem;
+    font-weight: 900;
+    background: linear-gradient(90deg, #007bff, #00d4ff, #007bff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shine 6s linear infinite;
+    letter-spacing: 1px;
+}
+@keyframes shine {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+.card-header.bg-gradient-primary {
+    background: linear-gradient(87.4deg, #4e73df 0%, #224abe 100%) !important;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+.badge {
+    font-size: 0.95rem;
+    padding: 0.35em 0.8em;
+    border-radius: 1em;
+}
+.input-group-lg > .form-control, .input-group-lg > .input-group-text {
+    font-size: 1.1rem;
+    padding: 0.75rem 1rem;
+}
+.glass-card {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(4px);
+    border-radius: 1.2rem;
+    box-shadow: 0 8px 32px rgba(78,115,223,0.10);
+}
+</style>
 {% endblock %}

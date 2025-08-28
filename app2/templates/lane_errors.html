@@ -1,35 +1,201 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2 class="wow">Unresolved Error Logs for Lane {{ lane.number }}</h2>
-{% if success %}
-    <div class="alert alert-success">{{ success }}</div>
-{% endif %}
-{% if error %}
-    <div class="alert alert-danger">{{ error }}</div>
-{% endif %}
-<form method="post">
-    {% csrf_token %}
-    <div class="mb-3">
-        <label class="form-label">Select Error Logs to Repair:</label>
-        <ul class="list-group">
-            {% for log in error_logs %}
-            <li class="list-group-item">
-                <input type="checkbox" name="errorlog_ids" value="{{ log.id }}" id="log{{ log.id }}">
-                <label for="log{{ log.id }}">
-                    <strong>{{ log.error.number }} - {{ log.error.description }}</strong> ({{ log.date }} {{ log.time }})<br>
-                    Notes: {{ log.notes|default:'No notes' }}
-                </label>
-            </li>
-            {% empty %}
-            <li class="list-group-item">No unresolved error logs for this lane.</li>
-            {% endfor %}
-        </ul>
+<div class="container-fluid py-4">
+    <!-- قسم الرأس -->
+    <div class="row ">
+        <div class="col-12">
+            <div class="card bg-gradient-primary shadow-primary border-0 overflow-hidden">
+                <div class="card-body p-4 position-relative">
+                    <div class="bg-pattern" style="opacity: 0.05;"></div>
+                    <div class="row align-items-center position-relative">
+                        <div class="col-md-8">
+                            <h2 class="text-white mb-1 fw-bold">سجلات الأخطاء غير المحلولة</h2>
+                            <p class="text-white mb-0 opacity-8">مسار {{ lane.number }} - {{ lane.section.name }}</p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <a href="{% url 'section_overview' lane.section.id %}" class="btn btn-light btn-sm rounded-pill">
+                                <i class="bi bi-arrow-left me-1"></i> العودة إلى القسم
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="mb-3 mt-3">
-        <label for="description" class="form-label">Repair Description</label>
-        <textarea name="description" id="description" class="form-control" rows="3" required></textarea>
+
+    <!-- قسم التنبيهات -->
+    <div class="row ">
+        <div class="col-12">
+            {% if success %}
+            <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-lg" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                    <span>{{ success }}</span>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="إغلاق"></button>
+                </div>
+            </div>
+            {% endif %}
+            {% if error %}
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-lg" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                    <span>{{ error }}</span>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="إغلاق"></button>
+                </div>
+            </div>
+            {% endif %}
+        </div>
     </div>
-    <button type="submit" class="btn btn-success">Save Repair Log</button>
-    <a href="{% url 'section_overview' lane.section.id %}" class="btn btn-secondary ms-2">Cancel</a>
-</form>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="row">
+        <!-- بطاقة سجلات الأخطاء -->
+        <div class="col-lg-6 mb-4 mb-lg-0">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-white">اختر الأخطاء للإصلاح</h5>
+                    <span class="badge bg-primary rounded-pill">{{ error_logs|length }} غير محلول</span>
+                </div>
+                <div class="card-body p-0">
+                    {% if error_logs %}
+                    <div class="list-group list-group-flush">
+                        {% for log in error_logs %}
+                        <div class="list-group-item border-0 py-3">
+                            <div class="form-check mb-0">
+                                <input class="form-check-input" type="checkbox" name="errorlog_ids" value="{{ log.id }}" id="log{{ log.id }}">
+                                <label class="form-check-label d-block w-100" for="log{{ log.id }}">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <strong class="text-dark">{{ log.error.number }} - {{ log.error.description }}</strong>
+                                        <span class="badge bg-light text-dark rounded-pill fs-12">{{ log.date }} {{ log.time }}</span>
+                                    </div>
+                                    <p class="text-muted mb-0 fs-14">{{ log.notes|default:'لا توجد ملاحظات إضافية.' }}</p>
+                                </label>
+                            </div>
+                        </div>
+                        {% if not forloop.last %}
+                        <hr class="my-0">
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-check-circle-fill text-success fs-1"></i>
+                        <p class="text-muted mt-2">لا توجد سجلات أخطاء غير محلولة لهذا المسار.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- بطاقة تفاصيل الإصلاح -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white py-3 border-0">
+                    <h5 class="mb-0 text-white">تفاصيل الإصلاح</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- حقل مخفي لمعرّفات سجلات الأخطاء (سيتم تعبئته بواسطة جافاسكريبت) -->
+                        <input type="hidden" name="errorlog_ids" id="selectedErrorLogs">
+                        
+                        <div class="mb-4">
+                            <label for="description" class="form-label fw-semibold">وصف الإصلاح</label>
+                            <textarea name="description" id="description" class="form-control" rows="6" placeholder="يرجى وصف عملية الإصلاح، الأجزاء التي تم استبدالها، وأي معلومات أخرى ذات صلة..." required></textarea>
+                            <div class="form-text">يرجى تقديم معلومات تفصيلية حول الإصلاح للرجوع إليها مستقبلاً.</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="reset" class="btn btn-outline-secondary rounded-pill px-4">
+                                <i class="bi bi-x-circle me-1"></i> مسح
+                            </button>
+                            <button type="submit" class="btn btn-primary rounded-pill px-4" id="submitBtn" {% if not error_logs %}disabled{% endif %}>
+                                <i class="bi bi-tools me-1"></i> حفظ سجل الإصلاح
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(87.4deg, #4e73df 0%, #224abe 100%);
+}
+
+.bg-pattern {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.3'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.shadow-primary {
+    box-shadow: 0 0.5rem 1.5rem rgba(78, 115, 223, 0.25) !important;
+}
+
+.fs-12 {
+    font-size: 12px;
+}
+
+.fs-14 {
+    font-size: 14px;
+}
+
+.card {
+    border-radius: 0.75rem;
+}
+
+.list-group-item {
+    transition: background-color 0.2s;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+.form-check-input:checked {
+    background-color: #4e73df;
+    border-color: #4e73df;
+}
+
+.btn {
+    transition: all 0.2s;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('input[type="checkbox"][name="errorlog_ids"]');
+    const hiddenInput = document.getElementById('selectedErrorLogs');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // Update hidden input with selected IDs
+    function updateSelectedLogs() {
+        const selectedIds = Array.from(checkboxes)
+            .filter(checkbox => checkbox.checked)
+            .map(checkbox => checkbox.value);
+        
+        hiddenInput.value = selectedIds.join(',');
+        submitBtn.disabled = selectedIds.length === 0;
+    }
+    
+    // Add event listeners to all checkboxes
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelectedLogs);
+    });
+    
+    // Initialize the hidden input and button state
+    updateSelectedLogs();
+});
+</script>
 {% endblock %}
