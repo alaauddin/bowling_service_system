@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="wow">نظرة عامة على القسم: {{ section.name }}</h2>
+    <div>
+        <a href="{% url 'my_repairs' %}" class="btn btn-dark me-2">إصلاحاتي</a>
+        <a href="{% url 'broken_lane_resolves' %}" class="btn btn-danger me-2">حل المسارات المعطلة</a>
+        <a href="{% url 'all_error_logs' %}" class="btn btn-warning me-2">كل سجلات الأخطاء</a>
+        <a href="{% url 'all_errors' %}" class="btn btn-info">كل الأخطاء</a>
+    </div>
+</div>
+<div class="row">
+    {% for lane in lanes %}
+        
+        <div class="col-md-4 mb-3">
+            <div class="card {% if lane.get_error_logs_count > 0 %}border-danger{% endif %}">
+                <div class="card-body">
+                    <h5 class="card-title {% if lane.get_error_logs_count > 0 %}text-danger{% endif %}">مسار {{ lane.number }}</h5>
+                    {% if lane.get_error_logs_count > 0 %}
+                    <span class="badge bg-danger mb-2">أخطاء غير محلولة: {{ lane.get_error_logs_count }}</span>
+                    {% endif %}
+                    
+                    {% with notes=note|dictsort:"created_at" %}
+                    {% for n in notes %}
+                        {% if n.lane.id == lane.id %}
+                            <div class="alert alert-warning mb-2">ملاحظة معلقة: {{ n.note }}
+                                <a href="{% url 'edit_note_pending_app2' n.id %}" class="btn btn-sm btn-outline-success ms-2">حل</a>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    {% endwith %}
+                    <a href="{% url 'lane_errors' lane.id %}" class="btn btn-primary">عرض الأخطاء</a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    {% if lanes|length == 0 or not lanes|dictsort:"get_error_logs_count" %}
+    <p>لا توجد مسارات بها أخطاء غير محلولة في هذا القسم.</p>
+    {% endif %}
+</div>
+{% endblock %}

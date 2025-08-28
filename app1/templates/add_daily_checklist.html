@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="wow">إضافة قائمة الفحص اليومي للقسم {{ section.name }}</h2>
+{% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    <a href="{% url 'section_detail' section.id %}" class="btn btn-secondary">العودة إلى القسم</a>
+{% else %}
+<form method="post" class="mt-4">
+    {% csrf_token %}
+    <div class="form-check mb-2">
+        {{ form.electrical_check }} {{ form.electrical_check.label_tag }}
+    </div>
+    <div class="form-check mb-2">
+        {{ form.is_cleaned }} {{ form.is_cleaned.label_tag }}
+    </div>
+    <div class="form-check mb-2">
+        {{ form.oprated_smoothly }} {{ form.oprated_smoothly.label_tag }}
+    </div>
+    <div class="form-check mb-2">
+        {{ form.no_defects }} {{ form.no_defects.label_tag }}
+    </div>
+    <div class="mb-3">
+        {{ form.notes.label_tag }}
+        {{ form.notes }}
+    </div>
+    <button type="submit" class="btn btn-success">إرسال القائمة</button>
+    <a href="{% url 'section_detail' section.id %}" class="btn btn-secondary ms-2">إلغاء</a>
+</form>
+{% endif %}
+{% endblock %}

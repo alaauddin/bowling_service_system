@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="wow">سجلات الأخطاء للمسار</h2>
+<div class="row">
+    {% for log in error_logs %}
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">خطأ: {{ log.error.number }} - {{ log.error.description }}</h5>
+                <p class="card-text">التاريخ: {{ log.date }}<br>الوقت: {{ log.time }}</p>
+                <p class="card-text">ملاحظات: {{ log.notes|default:'لا توجد ملاحظات' }}</p>
+                <span class="badge bg-info">تم التسجيل بواسطة: {{ log.created_by.username }}</span>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p>لا توجد سجلات أخطاء لهذا المسار.</p>
+    {% endfor %}
+</div>
+{% comment %} js back twice{% endcomment %}
+<a class="btn btn-secondary mt-3" onclick="window.history.go(-2); return false;">العودة إلى الرئيسية</a>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="wow">My Repairs</h2>
+<form method="get" class="row g-3 mb-4 p-3 bg-light rounded shadow-sm">
+    <div class="col-md-4">
+        <label class="form-label fw-bold">Lane</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-diagram-3"></i></span>
+            {{ form.lane }}
+        </div>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label fw-bold">Date From</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-calendar-date"></i></span>
+            {{ form.date_from }}
+        </div>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label fw-bold">Date To</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-calendar-date"></i></span>
+            {{ form.date_to }}
+        </div>
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel"></i> Filter</button>
+    </div>
+</form>
+{% if repair_logs %}
+    <div class="row">
+        {% for log in repair_logs %}
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Lane {{ log.lane.number }} (Section: {{ log.lane.section.name }})</h5>
+                    <p class="card-text">Date: {{ log.date }}</p>
+                    <p class="card-text">Description: {{ log.description }}</p>
+                    <strong>Errors Repaired:</strong>
+                    <ul>
+                        {% for errorlog in log.error.all %}
+                        <li>{{ errorlog.error.number }} - {{ errorlog.error.description }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>No repairs found.</p>
+{% endif %}
+{% endblock %}

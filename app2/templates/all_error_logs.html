@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="wow">All Error Logs</h2>
+<form method="get" class="row g-3 mb-4 p-3 bg-light rounded shadow-sm">
+    <div class="col-md-3">
+        <label class="form-label fw-bold">Lane</label>
+        {{ form.lane }}
+    </div>
+    <div class="col-md-3">
+        <label class="form-label fw-bold">Error Type</label>
+        {{ form.error }}
+    </div>
+    <div class="col-md-2">
+        <label class="form-label fw-bold">Status</label>
+        {{ form.is_resolved }}
+    </div>
+    <div class="col-md-2">
+        <label class="form-label fw-bold">Date From</label>
+        {{ form.date_from }}
+    </div>
+    <div class="col-md-2">
+        <label class="form-label fw-bold">Date To</label>
+        {{ form.date_to }}
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">Filter</button>
+    </div>
+</form>
+{% if error_logs %}
+    <div class="row">
+        {% for log in error_logs %}
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Lane {{ log.lane.number }} (Section: {{ log.lane.section.name }})</h5>
+                    <p class="card-text">Error: {{ log.error.number }} - {{ log.error.description }}</p>
+                    <p class="card-text">Status: <span class="badge {% if log.is_resolved %}bg-success{% else %}bg-warning{% endif %}">{{ log.is_resolved|yesno:"Resolved,Unresolved" }}</span></p>
+                    <p class="card-text">Notes: {{ log.notes|default:"No notes" }}</p>
+                    <p class="card-text">Created By: {{ log.created_by.username }}</p>
+                    {% if log.is_resolved %}
+                        <p class="card-text">Resolved By: {{ log.resolved_by.username }}</p>
+                    {% endif %}
+                    <p class="card-text"><small class="text-muted">Created: {{ log.created_at }}</small></p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>No error logs found.</p>
+{% endif %}
+{% endblock %}

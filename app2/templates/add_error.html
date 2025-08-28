@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="wow">Add New Error</h2>
+<form method="post" class="mt-4">
+    {% csrf_token %}
+    <div class="mb-3">
+        {{ form.number.label_tag }}
+        {{ form.number }}
+    </div>
+    <div class="mb-3">
+        {{ form.description.label_tag }}
+        {{ form.description }}
+    </div>
+    <button type="submit" class="btn btn-success">Add Error</button>
+    <a href="{% url 'all_errors' %}" class="btn btn-secondary ms-2">Cancel</a>
+</form>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="wow">Unresolved Error Logs for Lane {{ lane.number }}</h2>
+{% if success %}
+    <div class="alert alert-success">{{ success }}</div>
+{% endif %}
+{% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+<form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label class="form-label">Select Error Logs to Repair:</label>
+        <ul class="list-group">
+            {% for log in error_logs %}
+            <li class="list-group-item">
+                <input type="checkbox" name="errorlog_ids" value="{{ log.id }}" id="log{{ log.id }}">
+                <label for="log{{ log.id }}">
+                    <strong>{{ log.error.number }} - {{ log.error.description }}</strong> ({{ log.date }} {{ log.time }})<br>
+                    Notes: {{ log.notes|default:'No notes' }}
+                </label>
+            </li>
+            {% empty %}
+            <li class="list-group-item">No unresolved error logs for this lane.</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="mb-3 mt-3">
+        <label for="description" class="form-label">Repair Description</label>
+        <textarea name="description" id="description" class="form-control" rows="3" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-success">Save Repair Log</button>
+    <a href="{% url 'section_overview' lane.section.id %}" class="btn btn-secondary ms-2">Cancel</a>
+</form>
+{% endblock %}

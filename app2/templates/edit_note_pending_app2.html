@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="wow">Edit Resolving Report for Lane {{ note_pending.lane.number }}</h2>
+<form method="post" class="mt-4">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label class="form-label">Pending Note</label>
+        <textarea class="form-control" readonly rows="3">{{ note_pending.note }}</textarea>
+    </div>
+    <div class="mb-3">
+        <label for="resolving_report" class="form-label">Resolving Report <span class="text-danger">*</span></label>
+        <textarea name="resolving_report" id="resolving_report" class="form-control" rows="3" required>{{ note_pending.resolving_report }}</textarea>
+    </div>
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+    <button type="submit" class="btn btn-success">Save Changes</button>
+    <a href="{% url 'broken_lane_resolves' %}" class="btn btn-secondary ms-2">Cancel</a>
+</form>
+{% endblock %}

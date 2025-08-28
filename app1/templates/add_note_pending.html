@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="wow">إضافة ملاحظة معلقة للمسار {{ lane.number }}</h2>
+{% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    <a href="{% url 'section_detail' lane.section.id %}" class="btn btn-secondary">العودة إلى القسم</a>
+{% else %}
+<form method="post" class="mt-4">
+    {% csrf_token %}
+    <div class="mb-3">
+        {{ form.note.label_tag }}
+        {{ form.note }}
+    </div>
+    <button type="submit" class="btn btn-success">إضافة ملاحظة</button>
+    <a href="{% url 'section_detail' lane.section.id %}" class="btn btn-secondary ms-2">إلغاء</a>
+</form>
+{% endif %}
+{% endblock %}

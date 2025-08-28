@@ -1,0 +1,23 @@
+# Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Django specific
+
+*.log
+
+# VSCode
+.vscode/
+
+# MacOS
+.DS_Store
+
+# Env
+.env
+
+# Other
+*.bak
+*.swp
+*.tmp

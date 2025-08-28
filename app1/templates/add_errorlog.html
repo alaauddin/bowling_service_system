@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="wow">إضافة سجل خطأ للمسار {{ lane.number }}</h2>
+<form method="post" class="mt-4">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="error-search" class="form-label">بحث عن الخطأ</label>
+        <input type="text" id="error-search" class="form-control mb-2" placeholder="اكتب للبحث عن الأخطاء..." onkeyup="filterErrors()">
+        <label for="id_error" class="form-label">اختر الخطأ</label>
+        {{ form.error }}
+    </div>
+    <div class="mb-3">
+        <label for="id_notes" class="form-label">ملاحظات</label>
+        {{ form.notes }}
+    </div>
+    <button type="submit" class="btn btn-success">إضافة سجل خطأ</button>
+    <a href="{% url 'lane_detail' lane.id %}" class="btn btn-secondary ms-2">إلغاء</a>
+</form>
+<script>
+function filterErrors() {
+    var input = document.getElementById('error-search');
+    var filter = input.value.toLowerCase();
+    var select = document.getElementById('id_error');
+    for (var i = 0; i < select.options.length; i++) {
+        var txt = select.options[i].text.toLowerCase();
+        select.options[i].style.display = txt.includes(filter) ? '' : 'none';
+    }
+}
+</script>
+{% endblock %}

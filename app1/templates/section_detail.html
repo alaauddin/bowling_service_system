@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="wow">مسارات القسم</h2>
+    {% if section_today_checklist %}
+        <a href="{% url 'edit_daily_checklist' section_today_checklist.id %}" class="btn btn-primary">تعديل قائمة الفحص اليومي</a>
+    {% else %}
+        <a href="{% url 'add_daily_checklist' lane.0.section.id %}" class="btn btn-success">إضافة قائمة الفحص اليومي</a>
+    {% endif %}
+</div>
+{% if section_today_checklist %}
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">قائمة الفحص اليومي</h5>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">فحص كهربائي: <strong>{{ section_today_checklist.electrical_check|yesno:"نعم,لا" }}</strong></li>
+            <li class="list-group-item">تم التنظيف: <strong>{{ section_today_checklist.is_cleaned|yesno:"نعم,لا" }}</strong></li>
+            <li class="list-group-item">تم التشغيل بسلاسة: <strong>{{ section_today_checklist.oprated_smoothly|yesno:"نعم,لا" }}</strong></li>
+            <li class="list-group-item">لا توجد أعطال: <strong>{{ section_today_checklist.no_defects|yesno:"نعم,لا" }}</strong></li>
+            <li class="list-group-item">ملاحظات: {{ section_today_checklist.notes|default:"لا توجد ملاحظات" }}</li>
+        </ul>
+        <span class="badge bg-info mt-2">تم الإرسال بواسطة: {{ section_today_checklist.created_by.username }}</span>
+    </div>
+</div>
+{% endif %}
+<div class="row">
+    {% for lane in lane %}
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">مسار {{ lane.number }}</h5>
+                <p class="card-text">القسم: {{ lane.section.name }}</p>
+                {% if lane.get_none_resolved_notes %}
+                    <div class="mb-2">
+                        <strong>ملاحظات معلقة:</strong>
+                        <ul class="list-group list-group-flush">
+                        {% for note in lane.get_none_resolved_notes %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ note.note }}
+                                <a href="{% url 'edit_note_pending' note.id %}" class="btn btn-sm btn-outline-secondary">تعديل</a>
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+                <a href="{% url 'lane_detail' lane.id %}" class="btn btn-primary">View Lane Details</a>
+                <a href="{% url 'add_errorlog' lane.id %}" class="btn btn-warning ms-2">Add Error Log</a>
+                <a href="{% url 'add_note_pending' lane.id %}" class="btn btn-info ms-2">Add Note</a>
+                
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p>No lanes found in this section.</p>
+    {% endfor %}
+</div>
+{% endblock %}

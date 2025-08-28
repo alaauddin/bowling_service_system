@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="wow">All Errors</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <input type="text" id="error-search" class="form-control w-50" placeholder="Search by number or description..." onkeyup="filterErrors()">
+    <a href="{% url 'add_error' %}" class="btn btn-success ms-3">Add New Error</a>
+</div>
+<div class="row" id="error-list">
+    {% for error in errors %}
+    <div class="col-md-4 mb-3 error-item">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Error {{ error.number }}</h5>
+                <p class="card-text">Description: {{ error.description }}</p>
+                <a href="{% url 'edit_error' error.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<script>
+function filterErrors() {
+    var input = document.getElementById('error-search').value.toLowerCase();
+    var items = document.getElementsByClassName('error-item');
+    for (var i = 0; i < items.length; i++) {
+        var number = items[i].querySelector('.card-title').textContent.toLowerCase();
+        var desc = items[i].querySelector('.card-text').textContent.toLowerCase();
+        if (number.includes(input) || desc.includes(input)) {
+            items[i].style.display = '';
+        } else {
+            items[i].style.display = 'none';
+        }
+    }
+}
+</script>
+{% endblock %}

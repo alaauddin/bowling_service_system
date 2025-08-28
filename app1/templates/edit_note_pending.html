@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="wow">تعديل الملاحظة المعلقة للمسار {{ note_pending.lane.number }}</h2>
+<form method="post" class="mt-4">
+    {% csrf_token %}
+    <div class="mb-3">
+        {{ form.note.label_tag }}
+        {{ form.note }}
+    </div>
+    
+    <button type="submit" class="btn btn-success">حفظ التغييرات</button>
+    <a href="{% url 'section_detail' note_pending.lane.section.id %}" class="btn btn-secondary ms-2">إلغاء</a>
+</form>
+{% endblock %}
