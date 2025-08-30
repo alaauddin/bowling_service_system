@@ -2,6 +2,7 @@
 
 from django import forms
 from app1.models import Error, Lane,  RepairLog
+from django.contrib.auth.models import User
 
 class ErrorForm(forms.ModelForm):
     class Meta:
@@ -19,6 +20,8 @@ class ErrorLogFilterForm(forms.Form):
     is_resolved = forms.ChoiceField(choices=[('', 'All'), ('True', 'Resolved'), ('False', 'Unresolved')], required=False, label='Status', widget=forms.Select(attrs={'class': 'form-control'}))
     date_from = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), label='Date From')
     date_to = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), label='Date To')
+    created_by = forms.ModelChoiceField(queryset=User.objects.all(), required=False, label='Created By',  widget=forms.Select(attrs={'class': 'form-control'}))
+    
 
 
 
@@ -43,4 +46,11 @@ class RepairLogFilterForm(forms.Form):
             'date_from': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'date_to': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
         }
+    
+    
+    
+class DailyCheckListFormFilter(forms.Form):
+    date_from = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), label='Date From')
+    date_to = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), label='Date To')
+    created_by = forms.ModelChoiceField(queryset=User.objects.all(), required=False, label='Created By',  widget=forms.Select(attrs={'class': 'form-control'}))
     

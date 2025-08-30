@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2 class="wow">إضافة سجل خطأ للمسار {{ lane.number }}</h2>
-<form method="post" class="mt-4">
+<form method="post" class="mt-4" action="">
     {% csrf_token %}
     <div class="mb-3">
         <label for="error-search" class="form-label">بحث عن الخطأ</label>
@@ -13,9 +13,18 @@
         <label for="id_notes" class="form-label">ملاحظات</label>
         {{ form.notes }}
     </div>
-    <button type="submit" class="btn btn-success">إضافة سجل خطأ</button>
-    <a href="{% url 'section_detail' lane.section.id %}" class="btn btn-secondary ms-2">إلغاء</a>
+
+    <!-- Normal submit: go to section_detail -->
+    {% comment %} <button type="submit" class="btn btn-success">إضافة سجل خطأ</button> {% endcomment %}
+
+    <!-- Submit and reload same page -->
+    <button type="submit" name="submit_reload" value="1" class="btn btn-primary ms-2">
+        إضافة
+    </button>
+
+    <a href="{% url 'section_detail' lane.section.id %}" class="btn btn-success ms-2">خروج</a>
 </form>
+
 <script>
 function filterErrors() {
     var input = document.getElementById('error-search');
@@ -27,4 +36,19 @@ function filterErrors() {
     }
 }
 </script>
+
+<hr>
+<h4 class="mt-4">سجلات الأخطاء لهذا المسار</h4>
+{% if error_logs %}
+    <ul class="list-group mb-4">
+    {% for log in error_logs %}
+        <li class="list-group-item">
+            <strong>{{ log.error }}</strong> - {{ log.notes|default:"لا توجد ملاحظات" }}<br>
+            <small>بواسطة {{ log.created_by }} في {{ log.created_at|date:"Y-m-d H:i" }}</small>
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>لا توجد سجلات أخطاء لهذا المسار.</p>
+{% endif %}
 {% endblock %}

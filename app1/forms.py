@@ -21,21 +21,21 @@ class EditNotePendingForm(forms.ModelForm):
         fields = ['note']
 
 class DailyCheckListForm(forms.ModelForm):
-    electrical_check = forms.BooleanField(required=False, label='Electrical Check')
-    is_cleaned = forms.BooleanField(required=False, label='Is Cleaned')
-    oprated_smoothly = forms.BooleanField(required=False, label='Operated Smoothly')
-    no_defects = forms.BooleanField(required=False, label='No Defects')
-    notes = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 2}), required=False, label='Notes')
+    electrical_check = forms.BooleanField(required=False, label='فحص كهربائي')
+    is_cleaned = forms.BooleanField(required=False, label='تم التنظيف')
+    oprated_smoothly = forms.BooleanField(required=False, label='يعمل بسلاسة')
+    no_defects = forms.BooleanField(required=False, label='لا يوجد عيوب')
+    notes = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 2}), required=False, label='ملاحظات')
     class Meta:
         model = DailyCheckList
         fields = ['electrical_check', 'is_cleaned', 'oprated_smoothly', 'no_defects', 'notes']
 
 class EditDailyCheckListForm(forms.ModelForm):
-    electrical_check = forms.BooleanField(required=False, label='Electrical Check')
-    is_cleaned = forms.BooleanField(required=False, label='Is Cleaned')
-    oprated_smoothly = forms.BooleanField(required=False, label='Operated Smoothly')
-    no_defects = forms.BooleanField(required=False, label='No Defects')
-    notes = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 2}), required=False, label='Notes')
+    electrical_check = forms.BooleanField(required=False, label='فحص كهربائي')
+    is_cleaned = forms.BooleanField(required=False, label='تم التنظيف')
+    oprated_smoothly = forms.BooleanField(required=False, label='يعمل بسلاسة')
+    no_defects = forms.BooleanField(required=False, label='لا يوجد عيوب')
+    notes = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 2}), required=False, label='ملاحظات')
     class Meta:
         model = DailyCheckList
         fields = ['electrical_check', 'is_cleaned', 'oprated_smoothly', 'no_defects', 'notes']

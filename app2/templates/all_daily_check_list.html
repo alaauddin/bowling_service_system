@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block content %}
+<div dir="rtl">
+    <h2 class="wow mb-4"><i class="bi bi-clipboard-check me-1"></i> قائمة الفحص اليومي</h2>
+    <form method="get" class="row g-3 p-3 bg-white rounded-3 shadow-sm align-items-end mb-4" style="max-width: 1100px;">
+        <div class="col-12 col-md-3">
+            <label class="form-label fw-bold mb-2">القسم <i class="bi bi-diagram-3 ms-1"></i></label>
+            <div class="input-group input-group-lg flex-row-reverse">
+                {{ form.section }}
+                <span class="input-group-text bg-light"><i class="bi bi-diagram-3"></i></span>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <label class="form-label fw-bold mb-2">من تاريخ <i class="bi bi-calendar-date ms-1"></i></label>
+            <div class="input-group input-group-lg flex-row-reverse">
+                {{ form.date_from }}
+                <span class="input-group-text bg-light"><i class="bi bi-calendar-date"></i></span>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <label class="form-label fw-bold mb-2">إلى تاريخ <i class="bi bi-calendar-date ms-1"></i></label>
+            <div class="input-group input-group-lg flex-row-reverse">
+                {{ form.date_to }}
+                <span class="input-group-text bg-light"><i class="bi bi-calendar-date"></i></span>
+            </div>
+        </div>
+        <div class="col-12 col-md-3">
+            <label class="form-label fw-bold mb-2">أنشئ بواسطة <i class="bi bi-person-circle ms-1"></i></label>
+            <div class="input-group input-group-lg flex-row-reverse">
+                {{ form.created_by }}
+                <span class="input-group-text bg-light"><i class="bi bi-person-circle"></i></span>
+            </div>
+        </div>
+        <div class="col-12 col-md-2 d-grid">
+            <button type="submit" class="btn btn-primary fw-bold py-2"><i class="bi bi-funnel"></i> تصفية</button>
+        </div>
+    </form>
+    {% if daily_check_list %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle bg-white shadow-sm">
+            <thead class="table-primary">
+                <tr>
+                    <th scope="col"><i class="bi bi-diagram-3"></i> القسم</th>
+                    <th scope="col"><i class="bi bi-calendar-date"></i> التاريخ</th>
+                    <th scope="col"><i class="bi bi-lightning"></i> فحص كهربائي</th>
+                    <th scope="col"><i class="bi bi-broom"></i> تم التنظيف</th>
+                    <th scope="col"><i class="bi bi-gear"></i> يعمل بسلاسة</th>
+                    <th scope="col"><i class="bi bi-shield-check"></i> لا يوجد عيوب</th>
+                    <th scope="col"><i class="bi bi-chat-dots"></i> ملاحظات</th>
+                    <th scope="col"><i class="bi bi-person-circle"></i> أنشئ بواسطة</th>
+                    <th scope="col"><i class="bi bi-calendar-date"></i> تاريخ الإنشاء</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for checklist in daily_check_list %}
+                <tr>
+                    <td>{{ checklist.section.name }}</td>
+                    <td>{{ checklist.date }}</td>
+                    <td><span class="badge {% if checklist.electrical_check %}bg-success{% else %}bg-warning{% endif %}">{% if checklist.electrical_check %}نعم{% else %}لا{% endif %}</span></td>
+                    <td><span class="badge {% if checklist.is_cleaned %}bg-success{% else %}bg-warning{% endif %}">{% if checklist.is_cleaned %}نعم{% else %}لا{% endif %}</span></td>
+                    <td><span class="badge {% if checklist.oprated_smoothly %}bg-success{% else %}bg-warning{% endif %}">{% if checklist.oprated_smoothly %}نعم{% else %}لا{% endif %}</span></td>
+                    <td><span class="badge {% if checklist.no_defects %}bg-success{% else %}bg-warning{% endif %}">{% if checklist.no_defects %}نعم{% else %}لا{% endif %}</span></td>
+                    <td>{{ checklist.notes|default:"لا توجد ملاحظات" }}</td>
+                    <td>{{ checklist.created_by.username|default:"-" }}</td>
+                    <td>{{ checklist.created_at|date:'Y-m-d H:i' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info mt-4 text-center"><i class="bi bi-info-circle me-1"></i> لا توجد بيانات للفحص اليومي.</div>
+    {% endif %}
+</div>
+{% endblock %}

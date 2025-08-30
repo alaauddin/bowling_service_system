@@ -45,6 +45,7 @@ def add_errorlog(request, lane_id):
         messages.error(request, "You do not have permission to access this page.")
         return redirect('home_genaric')(request)
     lane = get_object_or_404(Lane, id=lane_id)
+    error_logs = ErrorLog.objects.filter(lane=lane, is_resolved=False)
     if request.method == 'POST':
         form = ErrorLogForm(request.POST)
         if form.is_valid():
@@ -52,10 +53,16 @@ def add_errorlog(request, lane_id):
             errorlog.lane = lane
             errorlog.created_by = request.user
             errorlog.save()
-            return redirect('section_detail', lane.section.id)
+            # Check which button was pressed
+            if 'submit_reload' in request.POST:
+                # Reload the same page after saving
+                return redirect('add_errorlog', lane_id=lane.id)
+            else:
+                # Default: go to section_detail
+                return redirect('section_detail', lane.section.id)
     else:
         form = ErrorLogForm()
-    return render(request, 'add_errorlog.html', {'form': form, 'lane': lane})
+    return render(request, 'add_errorlog.html', {'form': form, 'lane': lane, 'error_logs': error_logs})
 
 @login_required
 def add_note_pending(request, lane_id):
@@ -89,9 +96,6 @@ def edit_note_pending(request, note_id):
         messages.error(request, "You do not have permission to access this page.")
         return redirect('home_genaric')(request)
     note_pending = get_object_or_404(NotePending, id=note_id)
-    if note_pending.created_by != request.user:
-        messages.error(request, "You can only edit notes you have created.")
-        return redirect('section_detail', section_id=note_pending.lane.section.id)
     if request.method == 'POST':
         if note_pending.created_by != request.user:
             messages.error(request, "You can only edit notes you have created.")

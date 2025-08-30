@@ -12,4 +12,5 @@ urlpatterns = [
     path('all_errors/', views.all_errors, name='all_errors'),
     path('error/add/', views.add_error, name='add_error'),
     path('error/<int:error_id>/edit/', views.edit_error, name='edit_error'),
+    path('all_daily_check_list/', views.all_daily_check_list, name='all_daily_check_list'),
 ]

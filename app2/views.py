@@ -6,6 +6,7 @@ from django.utils import timezone
 from app1.models import *
 
 from auth_management.permission import admin_role, maintenance_role
+from app2.forms import DailyCheckListFormFilter
 
 # Create your views here.
 
@@ -39,6 +40,10 @@ def lane_errors(request, lane_id):
     if request.method == 'POST':
         selected_ids = request.POST.getlist('errorlog_ids')
         description = request.POST.get('description', '')
+        if len(selected_ids) == 1 and "," in selected_ids[0]:
+            selected_ids = selected_ids[0].split(",")
+        selected_ids = [int(i) for i in selected_ids]
+
         selected_errorlogs = error_logs.filter(id__in=selected_ids)
         if selected_errorlogs.exists():
             repair_log = RepairLog.objects.create(
@@ -144,6 +149,7 @@ def all_error_logs(request):
         is_resolved = form.cleaned_data.get('is_resolved')
         date_from = form.cleaned_data.get('date_from')
         date_to = form.cleaned_data.get('date_to')
+        created_by = form.cleaned_data.get('created_by')
         if lane:
             error_logs = error_logs.filter(lane=lane)
         if error:
@@ -156,6 +162,8 @@ def all_error_logs(request):
             error_logs = error_logs.filter(created_at__date__gte=date_from)
         if date_to:
             error_logs = error_logs.filter(created_at__date__lte=date_to)
+        if created_by:
+            error_logs = error_logs.filter(created_by=created_by)
     return render(request, 'all_error_logs.html', {'error_logs': error_logs, 'form': form})
 
 @login_required
@@ -196,3 +204,23 @@ def edit_error(request, error_id):
         else:
             form = ErrorForm(instance=error)
         return render(request, 'edit_error.html', {'form': form, 'error': error})
+    
+@login_required
+def all_daily_check_list(request):
+    form = DailyCheckListFormFilter(request.GET or None)
+    daily_check_list = DailyCheckList.objects.all()
+    
+    if form.is_valid():
+        date_from = form.cleaned_data.get('date_from')
+        date_to = form.cleaned_data.get('date_to')
+        created_by = form.cleaned_data.get('created_by')
+        if date_from:
+            daily_check_list = daily_check_list.filter(created_at__date__gte=date_from)
+        if date_to:
+            daily_check_list = daily_check_list.filter(created_at__date__lte=date_to)
+        if created_by:
+            daily_check_list = daily_check_list.filter(created_by=created_by)
+            
+    return render(request, 'all_daily_check_list.html', {'daily_check_list': daily_check_list, 'form': form})
+    
+
